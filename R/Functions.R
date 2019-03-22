@@ -54,8 +54,8 @@ load_GAPIT_GWAS_all <- function(path = ".", phenotype, model = "CMLM"){
 
 gapit_top_effects <- function(df = df1$Effects, phenotype, numSNPs = numSNPs){
 df2 <- df %>%
-  mutate(abs_tvalue = abs(`t Value`)) %>%
-  top_n(as.integer(numSNPs), abs_tvalue)
+  dplyr::mutate(abs_tvalue = abs(`t Value`)) %>%
+  dplyr::top_n(as.integer(numSNPs), abs_tvalue)
 names(df2)[4] <- paste0(phenotype, "_DF")
 names(df2)[5] <- paste0(phenotype, "_tvalue")
 names(df2)[6] <- paste0(phenotype, "_stderror")
@@ -66,23 +66,23 @@ return(df2)
 s_hat_hedges_g <- function(df = df1$Results, phenotype){
   standardization <- max(abs(df$effect), na.rm = TRUE)
   df3 <- df %>%
-    mutate(Stand_effect = effect / standardization,
-           Obs = maf * nobs,
-           Obs2 = (1-maf) * nobs,
-           d = ifelse(abs(Stand_effect) < 0.98,
-                      (2 * Stand_effect) / sqrt(1 - Stand_effect^2),
-                      4),
-           d_unbiased = (1 - (3 / (4 * (nobs -2) -1))) * d,
-           sigma2_d = ((Obs + Obs2) / (Obs * Obs2)) +
-             (d_unbiased^2 / (2*(Obs + Obs2))),
-           stderr_d = sqrt(sigma2_d)) %>%
-    mutate(Stand_effect = ifelse(is.na(Stand_effect) |
-                                   is.infinite(Stand_effect),
-                                 0,
-                                 Stand_effect),
-           stderr_d = ifelse(is.na(stderr_d) | is.infinite(stderr_d),
-                             10,
-                             stderr_d))  %>%
+    dplyr::mutate(Stand_effect = effect / standardization,
+                  Obs = maf * nobs,
+                  Obs2 = (1-maf) * nobs,
+                  d = ifelse(abs(Stand_effect) < 0.98,
+                             (2 * Stand_effect) / sqrt(1 - Stand_effect^2),
+                             4),
+                 d_unbiased = (1 - (3 / (4 * (nobs -2) -1))) * d,
+                 sigma2_d = ((Obs + Obs2) / (Obs * Obs2)) +
+                   (d_unbiased^2 / (2*(Obs + Obs2))),
+                 stderr_d = sqrt(sigma2_d)) %>%
+    dplyr::mutate(Stand_effect = ifelse(is.na(Stand_effect) |
+                                        is.infinite(Stand_effect),
+                                        0,
+                                        Stand_effect),
+                  stderr_d = ifelse(is.na(stderr_d) | is.infinite(stderr_d),
+                                     10,
+                                     stderr_d))  %>%
     dplyr::select(SNP, Stand_effect, stderr_d)
   names(df3)[2] <- paste0("Bhat_", phenotype)
   names(df3)[3] <- paste0("Shat_", phenotype)
@@ -93,10 +93,10 @@ s_hat_gapit <- function(df = df1$Effects, phenotype){
   standardization <- max(abs(df$effect), na.rm = TRUE)
 
   df3 <- df %>%  # fix this: make it a not-exported function.
-    mutate(stderr_d = `std Error` / standardization,
+    dplyr::mutate(stderr_d = `std Error` / standardization,
            Stand_effect = effect / standardization) %>%
     dplyr::select(SNP, Stand_effect, stderr_d) %>%
-    mutate(stderr_d = ifelse(is.na(stderr_d),
+    dplyr::mutate(stderr_d = ifelse(is.na(stderr_d),
                              10,
                              stderr_d),
            Stand_effect = ifelse(is.na(Stand_effect),
@@ -193,11 +193,11 @@ gapit2mashr <- function(path = ".", phenotypes = NA, numSNPs = 1000,
   # Start making data frames of strong and random B_hat and S_hat.
   bhat_df <- big_effects_df %>%
     dplyr::select(SNP) %>%
-    left_join(df3) %>%
+    dplyr::left_join(df3) %>%
     dplyr::select(SNP, starts_with("Bhat"))
   shat_df <- big_effects_df %>%
     dplyr::select(SNP) %>%
-    left_join(df3) %>%
+    dplyr::left_join(df3) %>%
     dplyr::select(SNP, starts_with("Shat"))
 
   set.seed(1234) # Makes the random data frames reproducible.
@@ -223,16 +223,16 @@ gapit2mashr <- function(path = ".", phenotypes = NA, numSNPs = 1000,
     }
 
     bhat_df <- bhat_df %>%
-      left_join(df3) %>%
+      dplyr::left_join(df3) %>%
       dplyr::select(SNP, starts_with("Bhat"))
     shat_df <- shat_df %>%
-      left_join(df3) %>%
+      dplyr::left_join(df3) %>%
       dplyr::select(SNP, starts_with("Shat"))
     bhat_random <- bhat_random %>%
-      left_join(df3[random_sample,]) %>%
+      dplyr::left_join(df3[random_sample,]) %>%
       dplyr::select(SNP, starts_with("Bhat"))
     shat_random <- shat_random %>%
-      left_join(df3[random_sample,]) %>%
+      dplyr::left_join(df3[random_sample,]) %>%
       dplyr::select(SNP, starts_with("Shat"))
     }
   }

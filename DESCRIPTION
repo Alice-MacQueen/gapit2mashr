@@ -1,9 +1,11 @@
 Package: gapit2mashr
-Title: What the Package Does (one line, title case)
+Title: Convert GAPIT Output Files to mashr Input Data Frames.
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
+Authors@R: Alice H MacQueen <alice.macqueen@utexas.edu>
 Description: What the package does (one paragraph).
 Depends: R (>= 3.5.1)
-License: What license is it under?
+Imports: dplyr, readr, purrr
+License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
+URL: https://github.com/Alice-MacQueen/gapit2mashr
