@@ -4,11 +4,19 @@ require(rlang)
 
 #' Identify phenotype names from GAPIT results in a folder.
 #'
-#'
+#' Creates a vector of phenotype names from GAPIT results.
 #'
 #' @param path File path to the csv files that GAPIT has created, a character
 #' string.
 #' @param model Model type used in GAPIT runs, a character string.
+#'
+#' @return A vector of phenotype names.
+#'
+#' @examples
+#' gapit_phenotypes_in_folder()
+#' \dontrun{gapit_phenotypes_in_folder(path = "usr/gapit_results")}
+#'
+#' @export
 gapit_phenotypes_in_folder <- function(path = ".", model = "CMLM"){
   result_files <- list.files(path = path, pattern = "*GWAS.Results*")
   if(model == "CMLM"){
@@ -30,7 +38,7 @@ gapit_phenotypes_in_folder <- function(path = ".", model = "CMLM"){
 #' @param model Model type used in GAPIT runs, a character string.
 #'
 #' @note To create a vector of phenotype names, use the
-#' \code{gapit_phenotypes_in_folder} function.
+#' \code{\link{gapit_phenotypes_in_folder}} function.
 load_GAPIT_GWAS_all <- function(path = ".", phenotype, model = "CMLM"){
   # Probably want to test this to make sure path works with file.path and with
   # and without a trailing "/".
@@ -55,7 +63,7 @@ load_GAPIT_GWAS_all <- function(path = ".", phenotype, model = "CMLM"){
 gapit_top_effects <- function(df = df1$Effects, phenotype, numSNPs = numSNPs){
 df2 <- df %>%
   dplyr::mutate(abs_tvalue = abs(`t Value`)) %>%
-  dplyr::top_n(as.integer(numSNPs), abs_tvalue)
+  dplyr::top_n(as.integer(numSNPs), .data$abs_tvalue)
 names(df2)[4] <- paste0(phenotype, "_DF")
 names(df2)[5] <- paste0(phenotype, "_tvalue")
 names(df2)[6] <- paste0(phenotype, "_stderror")
@@ -66,9 +74,9 @@ return(df2)
 s_hat_hedges_g <- function(df = df1$Results, phenotype){
   standardization <- max(abs(df$effect), na.rm = TRUE)
   df3 <- df %>%
-    dplyr::mutate(Stand_effect = effect / standardization,
-                  Obs = maf * nobs,
-                  Obs2 = (1-maf) * nobs,
+    dplyr::mutate(Stand_effect = .data$effect / standardization,
+                  Obs = .data$maf * .data$nobs,
+                  Obs2 = (1-.data$maf) * .data$nobs,
                   d = ifelse(abs(Stand_effect) < 0.98,
                              (2 * Stand_effect) / sqrt(1 - Stand_effect^2),
                              4),
@@ -93,9 +101,9 @@ s_hat_gapit <- function(df = df1$Effects, phenotype){
   standardization <- max(abs(df$effect), na.rm = TRUE)
 
   df3 <- df %>%  # fix this: make it a not-exported function.
-    dplyr::mutate(stderr_d = `std Error` / standardization,
-           Stand_effect = effect / standardization) %>%
-    dplyr::select(SNP, Stand_effect, stderr_d) %>%
+    dplyr::mutate(stderr_d = .data$`std Error` / standardization,
+           Stand_effect = .data$effect / standardization) %>%
+    dplyr::select(.data$SNP, Stand_effect, stderr_d) %>%
     dplyr::mutate(stderr_d = ifelse(is.na(stderr_d),
                              10,
                              stderr_d),
@@ -109,7 +117,8 @@ s_hat_gapit <- function(df = df1$Effects, phenotype){
 
 #' Convert GAPIT output to mashr input dataframes.
 #'
-#'
+#' This function converts GAPIT output, saved as csv files to some path in the
+#' user's files, to four dataframes used in the R package mashr.
 #'
 #' @param path File path to the csv files that GAPIT has created, a character
 #' string. Defaults to the working directory.
@@ -127,6 +136,9 @@ s_hat_gapit <- function(df = df1$Effects, phenotype){
 #' @param saveoutput Logical. Should the function's output also be saved to RDS
 #' files?
 #'
+#' @return A list of the SNPs selected, and B_hat and S_hat matrices for your
+#' strong SNP set and a random SNP set of the same size.
+#'
 #' @note Hedges' g (Hedges & Olkin 1985 p. 86) is used here to calculate S_hat,
 #' or the standard error in the effect size difference between the reference and
 #' alternate allele, because it allows the calculation of both the effect size
@@ -138,6 +150,17 @@ s_hat_gapit <- function(df = df1$Effects, phenotype){
 #' \code{sigma^2_d_i = (n_i^e + n_i^c)/n_i^e*n_i^c + d_i^2 / 2*(n_i^e + n_i^c)}
 #' where r is the effect size, scaled between -1 and 1; n's are the sample sizes
 #' of the two experimental groups; N is the total sample size.
+#'
+#' @note To create a vector of phenotype names, use the
+#' \code{\link{gapit_phenotypes_in_folder}} function.
+#'
+#' @examples
+#' \dontrun{gapit2mashr(numSNPs = 10000, S_hat = "Hedges' G")}
+#' \dontrun{gapit2mashr(numSNPs = 20000, S_hat = "Hedges' G", saveoutput = TRUE)}
+#' \dontrun{gapit2mashr(phenotypes = phenotype_vector, numSNPs = 5000,
+#' S_hat = "Hedges' G", saveoutput = TRUE)}
+#'
+#' @export
 gapit2mashr <- function(path = ".", phenotypes = NA, numSNPs = 1000,
                         model = "CMLM", S_hat = c("Hedges' G", "ones"),
                         saveoutput = FALSE){
