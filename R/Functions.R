@@ -13,14 +13,14 @@ require(rlang)
 #' @return A vector of phenotype names.
 #'
 #' @examples
-#' gapit_phenotypes_in_folder()
+#' \dontrun{gapit_phenotypes_in_folder()}
 #' \dontrun{gapit_phenotypes_in_folder(path = "usr/gapit_results")}
 #'
 #' @export
 gapit_phenotypes_in_folder <- function(path = ".", model = "CMLM"){
   result_files <- list.files(path = path, pattern = "*GWAS.Results*")
   if(model == "CMLM"){
-  phemiddle <- purrr::partial(str_sub, start = 12, end = -18)
+  phemiddle <- purrr::partial(stringr::str_sub, start = 12, end = -18)
   # Eventually this needs to accomodate models other than "CMLM", which means
   # modifying where this function ends based on the model used.
   gapit_phenotypes <- purrr::map(result_files, phemiddle) %>%
@@ -60,9 +60,9 @@ load_GAPIT_GWAS_all <- function(path = ".", phenotype, model = "CMLM"){
   return(out)
 }
 
-gapit_top_effects <- function(df = df1$Effects, phenotype, numSNPs = numSNPs){
+gapit_top_effects <- function(df, phenotype, numSNPs = numSNPs){
 df2 <- df %>%
-  dplyr::mutate(abs_tvalue = abs(`t Value`)) %>%
+  dplyr::mutate(abs_tvalue = abs(.data$`t Value`)) %>%
   dplyr::top_n(as.integer(numSNPs), .data$abs_tvalue)
 names(df2)[4] <- paste0(phenotype, "_DF")
 names(df2)[5] <- paste0(phenotype, "_tvalue")
@@ -71,45 +71,45 @@ names(df2)[7] <- paste0(phenotype, "_effect")
 return(df2)
 }
 
-s_hat_hedges_g <- function(df = df1$Results, phenotype){
+s_hat_hedges_g <- function(df, phenotype){
   standardization <- max(abs(df$effect), na.rm = TRUE)
   df3 <- df %>%
     dplyr::mutate(Stand_effect = .data$effect / standardization,
                   Obs = .data$maf * .data$nobs,
                   Obs2 = (1-.data$maf) * .data$nobs,
-                  d = ifelse(abs(Stand_effect) < 0.98,
-                             (2 * Stand_effect) / sqrt(1 - Stand_effect^2),
+                  d = ifelse(abs(.data$Stand_effect) < 0.98,
+                             (2 * .data$Stand_effect) / sqrt(1 - .data$Stand_effect^2),
                              4),
-                 d_unbiased = (1 - (3 / (4 * (nobs -2) -1))) * d,
-                 sigma2_d = ((Obs + Obs2) / (Obs * Obs2)) +
-                   (d_unbiased^2 / (2*(Obs + Obs2))),
-                 stderr_d = sqrt(sigma2_d)) %>%
-    dplyr::mutate(Stand_effect = ifelse(is.na(Stand_effect) |
-                                        is.infinite(Stand_effect),
+                 d_unbiased = (1 - (3 / (4 * (.data$nobs -2) -1))) * .data$d,
+                 sigma2_d = ((.data$Obs + .data$Obs2) / (.data$Obs * .data$Obs2)) +
+                   (.data$d_unbiased^2 / (2*(.data$Obs + .data$Obs2))),
+                 stderr_d = sqrt(.data$sigma2_d)) %>%
+    dplyr::mutate(Stand_effect = ifelse(is.na(.data$Stand_effect) |
+                                        is.infinite(.data$Stand_effect),
                                         0,
-                                        Stand_effect),
-                  stderr_d = ifelse(is.na(stderr_d) | is.infinite(stderr_d),
+                                        .data$Stand_effect),
+                  stderr_d = ifelse(is.na(.data$stderr_d) | is.infinite(.data$stderr_d),
                                      10,
-                                     stderr_d))  %>%
-    dplyr::select(SNP, Stand_effect, stderr_d)
+                                    .data$stderr_d))  %>%
+    dplyr::select(.data$SNP, .data$Stand_effect, .data$stderr_d)
   names(df3)[2] <- paste0("Bhat_", phenotype)
   names(df3)[3] <- paste0("Shat_", phenotype)
   return(df3)
 }
 
-s_hat_gapit <- function(df = df1$Effects, phenotype){
+s_hat_gapit <- function(df, phenotype){
   standardization <- max(abs(df$effect), na.rm = TRUE)
 
   df3 <- df %>%  # fix this: make it a not-exported function.
     dplyr::mutate(stderr_d = .data$`std Error` / standardization,
            Stand_effect = .data$effect / standardization) %>%
-    dplyr::select(.data$SNP, Stand_effect, stderr_d) %>%
-    dplyr::mutate(stderr_d = ifelse(is.na(stderr_d),
+    dplyr::select(.data$SNP, .data$Stand_effect, .data$stderr_d) %>%
+    dplyr::mutate(stderr_d = ifelse(is.na(.data$stderr_d),
                              10,
-                             stderr_d),
-           Stand_effect = ifelse(is.na(Stand_effect),
+                             .data$stderr_d),
+           Stand_effect = ifelse(is.na(.data$Stand_effect),
                                  0,
-                                 Stand_effect))
+                                 .data$Stand_effect))
   names(df3)[2] <- paste0("Bhat_", phenotype)
   names(df3)[3] <- paste0("Shat_", phenotype)
   return(df3)
@@ -178,15 +178,15 @@ gapit2mashr <- function(path = ".", phenotypes = NA, numSNPs = 1000,
                  " in the top ", numSNPs, " SNPs for at least one phenotype."))
 
   df1 <- load_GAPIT_GWAS_all(path = path, phenotype = phe_col[1])
-  df2 <- gapit_top_effects(phenotype = phe_col[1])
+  df2 <- gapit_top_effects(df = df1$Effects, phenotype = phe_col[1])
   big_effects_df <- df2 %>%
-    dplyr::select(-abs_tvalue)
+    dplyr::select(-.data$abs_tvalue)
 
   for(i in seq_along(phe_col)[-1]){
     df1 <- load_GAPIT_GWAS_all(path = path, phenotype = phe_col[i])
-    df2 <- gapit_top_effects(phenotype = phe_col[i])
+    df2 <- gapit_top_effects(df = df1$Effects, phenotype = phe_col[i])
     big_effects_df <- df2 %>%
-      dplyr::select(-abs_tvalue) %>%
+      dplyr::select(-.data$abs_tvalue) %>%
       dplyr::full_join(big_effects_df)
   }
 
@@ -205,30 +205,30 @@ gapit2mashr <- function(path = ".", phenotypes = NA, numSNPs = 1000,
     if(sum(is.na(df1$Effects$`std Error`)) > length(df1$Effects$`std Error`)*.05){
       # If there are too many NA's for standard errors, derive new standard errors
       # using Hedges' G (which requires the MAF).
-      df3 <- s_hat_hedges_g(phenotype = phe_col[1])
+      df3 <- s_hat_hedges_g(df = df1$Effects, phenotype = phe_col[1])
       message(paste0("Hedge's G standard errors were used for", phe_col[1]))
   } else {
       # or if not many of the standard errors are NA's, just use them for Shats.
-      df3 <- s_hat_gapit(phenotype = phe_col[1])
+      df3 <- s_hat_gapit(df = df1$Effects, phenotype = phe_col[1])
       message(paste0("GAPIT standard errors were used for", phe_col[1]))
   }
 
   # Start making data frames of strong and random B_hat and S_hat.
   bhat_df <- big_effects_df %>%
-    dplyr::select(SNP) %>%
+    dplyr::select(.data$SNP) %>%
     dplyr::left_join(df3) %>%
-    dplyr::select(SNP, starts_with("Bhat"))
+    dplyr::select(.data$SNP, starts_with("Bhat"))
   shat_df <- big_effects_df %>%
-    dplyr::select(SNP) %>%
+    dplyr::select(.data$SNP) %>%
     dplyr::left_join(df3) %>%
-    dplyr::select(SNP, starts_with("Shat"))
+    dplyr::select(.data$SNP, starts_with("Shat"))
 
   set.seed(1234) # Makes the random data frames reproducible.
   random_sample <- sample(1:nrow(df3), nrow(big_effects_df)) %>% sort()
   bhat_random <- df3[random_sample,] %>%
-    dplyr::select(SNP, starts_with("Bhat"))
+    dplyr::select(.data$SNP, starts_with("Bhat"))
   shat_random <- df3[random_sample,] %>%
-    dplyr::select(SNP, starts_with("Shat"))
+    dplyr::select(.data$SNP, starts_with("Shat"))
 
   for(i in seq_along(phe_col)[-1]){
 
@@ -237,33 +237,33 @@ gapit2mashr <- function(path = ".", phenotypes = NA, numSNPs = 1000,
     if(sum(is.na(df1$Effects$`std Error`)) > length(df1$Effects$`std Error`)*.05){
       # If there are too many NA's for standard errors, derive new standard
       # errors using Hedge's G (which requires the MAF).
-      df3 <- s_hat_hedges_g(phenotype = phe_col[i])
+      df3 <- s_hat_hedges_g(df = df1$Effects, phenotype = phe_col[i])
       message(paste0("Hedge's G standard errors were used for ", phe_col[i]))
     } else {
       # or if not many of the standard errors are NA's, just use them for Shats.
-      df3 <- s_hat_gapit(phenotype = phe_col[i])
+      df3 <- s_hat_gapit(df = df1$Effects, phenotype = phe_col[i])
       message(paste0("GAPIT standard errors were used for ", phe_col[i]))
     }
 
     bhat_df <- bhat_df %>%
       dplyr::left_join(df3) %>%
-      dplyr::select(SNP, starts_with("Bhat"))
+      dplyr::select(.data$SNP, starts_with("Bhat"))
     shat_df <- shat_df %>%
       dplyr::left_join(df3) %>%
-      dplyr::select(SNP, starts_with("Shat"))
+      dplyr::select(.data$SNP, starts_with("Shat"))
     bhat_random <- bhat_random %>%
       dplyr::left_join(df3[random_sample,]) %>%
-      dplyr::select(SNP, starts_with("Bhat"))
+      dplyr::select(.data$SNP, starts_with("Bhat"))
     shat_random <- shat_random %>%
       dplyr::left_join(df3[random_sample,]) %>%
-      dplyr::select(SNP, starts_with("Shat"))
+      dplyr::select(.data$SNP, starts_with("Shat"))
     }
   }
 
-  B_hat_random <- column_to_rownames(bhat_random, "SNP")
-  S_hat_random <- column_to_rownames(shat_random, "SNP")
-  B_hat_strong <- column_to_rownames(bhat_df, "SNP")
-  S_hat_strong <- column_to_rownames(shat_df, "SNP")
+  B_hat_random <- tibble::column_to_rownames(bhat_random, "SNP")
+  S_hat_random <- tibble::column_to_rownames(shat_random, "SNP")
+  B_hat_strong <- tibble::column_to_rownames(bhat_df, "SNP")
+  S_hat_strong <- tibble::column_to_rownames(shat_df, "SNP")
 
   if(saveoutput == TRUE){
     saveRDS(B_hat_strong, file = file.path(path, paste0("B_hat_strong_df_",
