@@ -1,0 +1,12 @@
+Model,Value
+Trait,c("324", "2")
+group.by ,20
+Trait name ,CMLM.Earliest_Year_CDBN
+Kinship,348:349
+Z Matrix,c(325, 325)
+Covariate,c(324, 2)
+SNP.P3D,TRUE
+Clustering algorithms,average
+Group kinship,Mean
+group.from ,10
+group.to ,348

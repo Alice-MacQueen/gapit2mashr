@@ -1,0 +1,12 @@
+Model,Value
+Trait,c("296", "2")
+group.by ,20
+Trait name ,CMLM.LG
+Kinship,348:349
+Z Matrix,c(297, 297)
+Covariate,c(296, 3)
+SNP.P3D,TRUE
+Clustering algorithms,average
+Group kinship,Mean
+group.from ,10
+group.to ,348
