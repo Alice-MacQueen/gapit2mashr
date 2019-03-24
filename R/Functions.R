@@ -129,7 +129,7 @@ s_hat_hedges_g <- function(df, phenotype){
 s_hat_gapit <- function(df, phenotype){
   standardization <- max(abs(df$effect), na.rm = TRUE)
 
-  df3 <- df %>%  # fix this: make it a not-exported function.
+  df3 <- df %>%
     dplyr::mutate(stderr_d = .data$`std Error` / standardization,
                   Stand_effect = .data$effect / standardization) %>%
     dplyr::select(.data$SNP, .data$Stand_effect, .data$stderr_d) %>%
