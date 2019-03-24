@@ -1,4 +1,4 @@
-export("gapit2mashr", "gapit_phenotypes_in_folder")
+export("gapit2mashr", "gapit_phenotypes_in_folder", "load_GAPIT_GWAS_all")
 
 import(dplyr)
 importFrom("purrr", "partial", "map")

@@ -19,7 +19,7 @@ A vector of phenotype names.
 Creates a vector of phenotype names from GAPIT results.
 }
 \examples{
-\dontrun{gapit_phenotypes_in_folder()}
-\dontrun{gapit_phenotypes_in_folder(path = "usr/gapit_results")}
+gapit_phenotypes_in_folder(path = file.path("data-raw"))
+gapit_phenotypes_in_folder(path = "./data-raw")
 
 }

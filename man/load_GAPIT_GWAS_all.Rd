@@ -14,10 +14,15 @@ string.}
 
 \item{model}{Model type used in GAPIT runs, a character string.}
 }
+\value{
+A list containing the five GAPIT csv outputs: PRED, GWAS.Results,
+Df.tValue.StdErr, ROC, and Log.
+}
 \description{
-Load GAPIT Results Tables
+Given a path to a directory and a specific phenotype, this function reads in
+GAPIT output csvs and returns a list of these data frames.
 }
 \note{
-To create a vector of phenotype names, use the
+To create a vector of all phenotype names, use the
 \code{\link{gapit_phenotypes_in_folder}} function.
 }

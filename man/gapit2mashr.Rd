@@ -54,8 +54,10 @@ To create a vector of phenotype names, use the
 \code{\link{gapit_phenotypes_in_folder}} function.
 }
 \examples{
+gapit2mashr(path = file.path("data-raw"), numSNPs = 60, S_hat = "Hedges' G")
 \dontrun{gapit2mashr(numSNPs = 10000, S_hat = "Hedges' G")}
 \dontrun{gapit2mashr(numSNPs = 20000, S_hat = "Hedges' G", saveoutput = TRUE)}
+phenotype_vector <- gapit_phenotypes_in_folder(path = file.path("data-raw"))
 \dontrun{gapit2mashr(phenotypes = phenotype_vector, numSNPs = 5000,
 S_hat = "Hedges' G", saveoutput = TRUE)}
 

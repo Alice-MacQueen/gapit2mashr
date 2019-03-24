@@ -9,7 +9,8 @@ test_that("Phenotypes in Raw Data Folder", {
 
 test_that("gapit top effects", {
   df1 <- load_GAPIT_GWAS_all(path = "./inst/extdata", phenotype = "LG")
-  df_out <- gapit_top_effects_FDRpvalue(df = df1$Results, phenotype = "LG", numSNPs = 100)
+  df_out <- gapit_top_effects_FDRpvalue(df = df1$Results, phenotype = "LG",
+                                        numSNPs = 100)
   expect_equivalent(nrow(df_out), 100)
   expect_equivalent(names(df_out)[5], "LG_effect")
 })
@@ -45,7 +46,8 @@ test_that("gapit2mashr works on example data", {
 #  filter(!is.na(LG_FDR_adj_pvalue) & !is.na(Earliest_Year_CDBN_FDR_adj_pvalue))
 
 
-## Make small example dataframes.
+## Make small example dataframes. These need to be less than 50 Mb to avoid
+# warnings, and less than 100 Mb to avoid github rejecting the file & push.
 #  df1 <- load_GAPIT_GWAS_all(path = file.path("inst", "extdata"),
 #                             phenotype = "LG")
 #
@@ -72,7 +74,9 @@ test_that("gapit2mashr works on example data", {
 #
 #  small_eyc_results <- shared_region2 %>%
 #    full_join(df2$Results[example_dataset,])
-#  write_csv(small_eyc_results, "./GAPIT.CMLM.Earliest_Year_CDBN.GWAS.Results.csv")
+#  write_csv(small_eyc_results,
+#             "./GAPIT.CMLM.Earliest_Year_CDBN.GWAS.Results.csv")
 #  small_eyc_effects <- shared_eff2 %>%
 #    full_join(df2$Effects[example_dataset,])
-#  write_csv(small_eyc_effects, "./GAPIT.CMLM.Earliest_Year_CDBN.Df.tValue.StdErr.csv")
+#  write_csv(small_eyc_effects,
+#            "./GAPIT.CMLM.Earliest_Year_CDBN.Df.tValue.StdErr.csv")

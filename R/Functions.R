@@ -48,7 +48,8 @@ load_GAPIT_GWAS_all <- function(path = ".", phenotype, model = "CMLM"){
                                                          paste0("GAPIT.", model,
                                                                 ".", phenotype,
                                                                 ".PRED.csv")),
-                                               col_names = TRUE, col_types = "ciiinnnn"))
+                                               col_names = TRUE,
+                                               col_types = "ciiinnnn"))
   out$Results <- readr::read_csv(file.path(path, paste0("GAPIT.", model, ".",
                                                         phenotype,
                                                         ".GWAS.Results.csv")),
@@ -57,7 +58,7 @@ load_GAPIT_GWAS_all <- function(path = ".", phenotype, model = "CMLM"){
 
   out$Effects <- readr::read_csv(file.path(path, paste0("GAPIT.", model, ".",
                                                         phenotype,
-                                                        ".Df.tValue.StdErr.csv")),
+                                                      ".Df.tValue.StdErr.csv")),
                                  col_names = TRUE, col_types = "cnninnn") %>%
     dplyr::arrange(.data$Chromosome, .data$Position)
   out$ROC <- readr::read_csv(file.path(path, paste0("GAPIT.", model, ".",
@@ -107,17 +108,20 @@ s_hat_hedges_g <- function(df, phenotype){
                   Obs = .data$maf * .data$nobs,
                   Obs2 = (1-.data$maf) * .data$nobs,
                   d = ifelse(abs(.data$Stand_effect) < 0.98,
-                             (2 * .data$Stand_effect) / sqrt(1 - .data$Stand_effect^2),
+                             (2 * .data$Stand_effect) /
+                               sqrt(1 - .data$Stand_effect^2),
                              4),
                   d_unbiased = (1 - (3 / (4 * (.data$nobs -2) -1))) * .data$d,
-                  sigma2_d = ((.data$Obs + .data$Obs2) / (.data$Obs * .data$Obs2)) +
+                  sigma2_d = ((.data$Obs + .data$Obs2) /
+                                (.data$Obs * .data$Obs2)) +
                     (.data$d_unbiased^2 / (2*(.data$Obs + .data$Obs2))),
                   stderr_d = sqrt(.data$sigma2_d)) %>%
     dplyr::mutate(Stand_effect = ifelse(is.na(.data$Stand_effect) |
                                           is.infinite(.data$Stand_effect),
                                         0,
                                         .data$Stand_effect),
-                  stderr_d = ifelse(is.na(.data$stderr_d) | is.infinite(.data$stderr_d),
+                  stderr_d = ifelse(is.na(.data$stderr_d) |
+                                      is.infinite(.data$stderr_d),
                                     10,
                                     .data$stderr_d))  %>%
     dplyr::select(.data$SNP, .data$Stand_effect, .data$stderr_d)
@@ -227,8 +231,9 @@ gapit2mashr <- function(path = ".", phenotypes = NA, numSNPs = 1000,
     dplyr::arrange(.data$Chromosome, .data$Position)
 
   if(saveoutput == TRUE){
-    saveRDS(big_effects_df, file = file.path(path, paste0("effects_", numSNPs,
-                                                          "SNPs_PartOneOutput.rds")))
+    saveRDS(big_effects_df, file = file.path(path,
+                                             paste0("effects_", numSNPs,
+                                                    "SNPs_PartOneOutput.rds")))
   }
 
   message(paste0("Part One: data frame of SNPs to keep complete."))
@@ -279,7 +284,7 @@ gapit2mashr <- function(path = ".", phenotypes = NA, numSNPs = 1000,
         message(paste0("Hedge's G standard errors were used for the phenotype '",
                        phe_col[i], "'."))
       } else {
-        # or if not many of the standard errors are NA's, just use them for Shats.
+        # if not many of the standard errors are NA's, just use them for Shats.
         df3 <- s_hat_gapit(df = df1$Effects, phenotype = phe_col[i])
         message(paste0("GAPIT's standard errors were used for the phenotype '",
                        phe_col[i], "'."))
