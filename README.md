@@ -13,7 +13,7 @@ install.packages("devtools")
 2. Install `gapit2mashr` with the following commands:
 ```R
 library(devtools)
-devtools::install_github("Alice-MacQueen/")
+devtools::install_github("Alice-MacQueen/gapit2mashr")
 ```
 This command should automatically install any missing dependencies that are available on CRAN.
 
