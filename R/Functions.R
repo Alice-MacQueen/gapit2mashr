@@ -71,7 +71,7 @@ load_GAPIT_GWAS_all <- function(path = ".", phenotype, model = "CMLM"){
                                                     phenotype, ".Log.csv")),
                              delim = ";", col_names = "Model_Value",
                              col_types = "c")
-  out$Log <- separate(Log1c, Model_Value, c("Model", "Value"), sep = ",",
+  out$Log <- tidyr::separate(Log1c, Model_Value, c("Model", "Value"), sep = ",",
                       extra = "merge")
   return(out)
 }
