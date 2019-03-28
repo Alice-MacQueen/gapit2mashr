@@ -203,12 +203,12 @@ gapit2mashr <- function(path = ".", phenotypes = NA, numSNPs = 1000,
   if(is.na(phenotypes)){
     phe_col <- gapit_phenotypes_in_folder(path = path)
   } else {
-    phe_col <- phenotypes
+     phe_col <- phenotypes
   }
   if(is.na(phe_col[1])){
     stop("Can't find any GAPIT Results files in this path.")
   }
-
+  numSNPs <- as.numeric(numSNPs)
   message(paste0("Starting part one: Making a data frame of all SNPs that are",
                  " in the top ", numSNPs, " SNPs
                  by FDR adjusted p-values for at least one phenotype."))
