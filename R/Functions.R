@@ -1,3 +1,5 @@
+requireNamespace("tidyverse")
+
 #' Identify phenotype names from GAPIT results in a folder.
 #'
 #' Creates a vector of phenotype names from GAPIT results.
