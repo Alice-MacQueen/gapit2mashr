@@ -1,4 +1,9 @@
-# gapit2mashr
+# gapit2mashr ![alt text][travisbuild]
+
+
+
+[travisbuild]: https://travis-ci.org/Alice-MacQueen/gapit2mashr.svg?branch=master
+
 Convert GAPIT output files to input data frames used by mashr.
 
 The most time-consuming part of data analysis is often the first step: getting the data into the right format to run an analysis. To that end, `gapit2mashr` takes output files from [GAPIT](https://www.maizegenetics.net/gapit "Genome Associated Prediction Integrated Tool"), a commonly used software for genome wide association studies (GWAS), and creates a series of dataframes from them suitable for input into [mashr](https://github.com/stephenslab/mashr "multivariate adaptive shrinkage"), a new and exciting software for testing and estimating many effects in many conditions. Once you have run multiple GWAS in R using GAPIT, `gapit2mashr`  allows you to quickly prepare your results for use in mashr.
