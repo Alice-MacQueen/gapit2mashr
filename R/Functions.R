@@ -9,8 +9,8 @@
 #' @return A vector of phenotype names.
 #'
 #' @examples
-#' gapit_phenotypes_in_folder(path = file.path("data-raw"))
-#' gapit_phenotypes_in_folder(path = "./data-raw")
+#' gapit_phenotypes_in_folder(path = file.path("inst", "extdata"))
+#' gapit_phenotypes_in_folder(path = "inst/extdata")
 #'
 #' @export
 gapit_phenotypes_in_folder <- function(path = ".", model = "CMLM"){
@@ -71,8 +71,8 @@ load_GAPIT_GWAS_all <- function(path = ".", phenotype, model = "CMLM"){
                                                     phenotype, ".Log.csv")),
                              delim = ";", col_names = "Model_Value",
                              col_types = "c")
-  out$Log <- tidyr::separate(Log1c, Model_Value, c("Model", "Value"), sep = ",",
-                      extra = "merge")
+  out$Log <- tidyr::separate(Log1c, .data$Model_Value, c("Model", "Value"),
+                             sep = ",", extra = "merge")
   return(out)
 }
 
@@ -154,12 +154,12 @@ s_hat_gapit <- function(df, phenotype){
 #' user's files, to four dataframes used in the R package mashr.
 #'
 #' @param path File path to the csv files that GAPIT has created, a character
-#' string. Defaults to the working directory.
+#'     string. Defaults to the working directory.
 #' @param phenotypes A character vector of phenotype names used in GAPIT. If NA,
-#' will find these from the GAPIT Results files found in the path.
+#'     will find these from the GAPIT Results files found in the path.
 #' @param numSNPs The number of most significant SNPs selected from each GWAS.
-#' Ideally this will give 1 million or fewer total cells in the resultant mash
-#' dataframes. Defaults to 1000. For many users this will be far too few.
+#'     Ideally this will give 1 million or fewer total cells in the resultant
+#'     mash dataframes. Defaults to 1000. For most purposes this is far too few.
 #' @param model Model type used in GAPIT runs, a character string. Defaults to
 #' "CMLM".
 #' @param S_hat One of \code{c("Hedge's G", "ones")}. If too many standard
@@ -173,25 +173,27 @@ s_hat_gapit <- function(df, phenotype){
 #' strong SNP set and a random SNP set of the same size.
 #'
 #' @note Hedges' g (Hedges & Olkin 1985 p. 86) is used here to calculate S_hat,
-#' or the standard error in the effect size difference between the reference and
-#' alternate allele, because it allows the calculation of both the effect size
-#' of the alternate allele, and the confidence interval around the effect size.
-#' This function uses the effect sizes provided by GAPIT to compute the
-#' confidence interval calculation. The calculations are:
+#'     or the standard error in the effect size difference between the reference
+#'     and alternate allele, because it allows the calculation of both the
+#'     effect size of the alternate allele, and the confidence interval around
+#'     the effect size. This function uses the effect sizes provided by GAPIT to
+#'     compute the confidence interval calculation. The calculations are:
 #' \code{d = 2r/sqrt(1-r^2)}
 #' \code{d_unbiased = (1-(3/(4*(N-2)-1)))*d}
 #' \code{sigma^2_d_i = (n_i^e + n_i^c)/n_i^e*n_i^c + d_i^2 / 2*(n_i^e + n_i^c)}
-#' where r is the effect size, scaled between -1 and 1; n's are the sample sizes
-#' of the two experimental groups; N is the total sample size.
+#'     where r is the effect size, scaled between -1 and 1; n's are the sample
+#'     sizes of the two experimental groups; N is the total sample size.
 #'
 #' @note To create a vector of phenotype names, use the
-#' \code{\link{gapit_phenotypes_in_folder}} function.
+#'     \code{\link{gapit_phenotypes_in_folder}} function.
 #'
 #' @examples
-#' gapit2mashr(path = file.path("data-raw"), numSNPs = 60, S_hat = "Hedges' G")
+#' gapit2mashr(path = file.path("inst", "extdata"), numSNPs = 20,
+#'     S_hat = "Hedges' G")
 #' \dontrun{gapit2mashr(numSNPs = 10000, S_hat = "Hedges' G")}
 #' \dontrun{gapit2mashr(numSNPs = 20000, S_hat = "Hedges' G", saveoutput = TRUE)}
-#' phenotype_vector <- gapit_phenotypes_in_folder(path = file.path("data-raw"))
+#' phenotype_vector <- gapit_phenotypes_in_folder(path = file.path("inst",
+#'     "extdata"))
 #' \dontrun{gapit2mashr(phenotypes = phenotype_vector, numSNPs = 5000,
 #' S_hat = "Hedges' G", saveoutput = TRUE)}
 #'
