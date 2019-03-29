@@ -160,7 +160,7 @@ s_hat_gapit <- function(df, phenotype){
 #'     will find these from the GAPIT Results files found in the path.
 #' @param numSNPs The number of most significant SNPs selected from each GWAS.
 #'     Ideally this will give 1 million or fewer total cells in the resultant
-#'     mash dataframes. Defaults to 1000. For most purposes this is far too few.
+#'     mash dataframes. Defaults to 1000.
 #' @param model Model type used in GAPIT runs, a character string. Defaults to
 #' "CMLM".
 #' @param S_hat One of \code{c("Hedge's G", "ones")}. If too many standard

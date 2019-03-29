@@ -24,11 +24,11 @@ This command should automatically install any missing dependencies that are avai
 
 # Usage
 
-1. Determine the number of SNPs you want to select from each file. A quick and dirty way to estimate the number of SNPs you should select is to divide the number of cells you want in your output data frames by the number of conditions you plan to include (the number of columns in your dataframe). Currently [mashr](https://github.com/stephenslab/mashr "multivariate adaptive shrinkage") recommends dataframes of around one million cells as a maximum. So if you have 40 conditions, for example, you likely want to set `numSNPs` to 25000. You can use `gapit_phenotypes_in_folder` to obtain this quantity and to find the names of the phenotypes in your GAPIT results directory:
+1. Determine the number of SNPs you want to select from each file. A quick and dirty way to estimate the number of SNPs you should select is to divide the number of cells you want in your output data frames by the square of the number of conditions you plan to include (the number of columns in your dataframe). Currently [mashr](https://github.com/stephenslab/mashr "multivariate adaptive shrinkage") recommends dataframes of around one million cells as a maximum. So if you have 40 conditions, for example, you likely want to set `numSNPs` to 625, or perhaps more depending on how many SNPs are significant in multiple conditions to start off with. You can use `gapit_phenotypes_in_folder` to obtain this quantity and to find the names of the phenotypes in your GAPIT results directory:
 ```R
 phenotypes_vector <- gapit_phenotypes_in_folder(path = "path/to/your/GAPIT/Results", model = "CMLM") 
 # currently only CMLM is supported
-numSNPs <- 1000000 / length(phenotypes_vector)
+numSNPs <- 1000000 / length(phenotypes_vector)^2
 ```
 
 2. To run mashr on every file in a specific directory, run:
