@@ -88,18 +88,18 @@ gapit_top_effects_tvalue <- function(df, phenotype, numSNPs){
 }
 
 gapit_top_effects_FDRpvalue <- function(df, phenotype, numSNPs){
-  df2 <- df %>%
-    dplyr::top_n(-as.integer(numSNPs), .data$`FDR_Adjusted_P-values`) %>%
-    dplyr::select(.data$SNP, .data$Chromosome, .data$Position, .data$P.value,
-                  .data$effect, .data$maf, .data$nobs,
-                  .data$`FDR_Adjusted_P-values`)
+  dfA <- df %>%
+    dplyr::arrange(.data$`FDR_Adjusted_P-values`) %>%
+    dplyr::select(-tidyselect::starts_with("Rsquare"))
+  df2 <- dfA[1:numSNPs,]
   names(df2)[4] <- paste0(phenotype, "_pvalue")
-  names(df2)[5] <- paste0(phenotype, "_effect")
-  names(df2)[6] <- paste0(phenotype, "_maf")
-  names(df2)[7] <- paste0(phenotype, "_nobs")
-  names(df2)[8] <- paste0(phenotype, "_FDR_adj_pvalue")
+  names(df2)[5] <- paste0(phenotype, "_maf")
+  names(df2)[6] <- paste0(phenotype, "_nobs")
+  names(df2)[7] <- paste0(phenotype, "_FDR_adj_pvalue")
+  names(df2)[8] <- paste0(phenotype, "_effect")
   return(df2)
 }
+
 
 s_hat_hedges_g <- function(df, phenotype){
   standardization <- max(abs(df$effect), na.rm = TRUE)
@@ -203,7 +203,10 @@ gapit2mashr <- function(path = ".", phenotypes = NA, numSNPs = 1000,
   if(is.na(phenotypes)){
     phe_col <- gapit_phenotypes_in_folder(path = path)
   } else {
-     phe_col <- phenotypes
+    phe_col <- phenotypes
+  }
+  if(is.null(phe_col)){
+    stop("Can't find any GAPIT Results files in this path.")
   }
   if(is.na(phe_col[1])){
     stop("Can't find any GAPIT Results files in this path.")
@@ -260,18 +263,18 @@ gapit2mashr <- function(path = ".", phenotypes = NA, numSNPs = 1000,
     bhat_df <- big_effects_df %>%
       dplyr::select(.data$SNP) %>%
       dplyr::left_join(df3, by = "SNP") %>%
-      dplyr::select(.data$SNP, starts_with("Bhat"))
+      dplyr::select(.data$SNP, tidyselect::starts_with("Bhat"))
     shat_df <- big_effects_df %>%
       dplyr::select(.data$SNP) %>%
       dplyr::left_join(df3, by = "SNP") %>%
-      dplyr::select(.data$SNP, starts_with("Shat"))
+      dplyr::select(.data$SNP, tidyselect::starts_with("Shat"))
 
     set.seed(1234) # Makes the random data frames reproducible.
     random_sample <- sample(1:nrow(df3), nrow(big_effects_df)) %>% sort()
     bhat_random <- df3[random_sample,] %>%
-      dplyr::select(.data$SNP, starts_with("Bhat"))
+      dplyr::select(.data$SNP, tidyselect::starts_with("Bhat"))
     shat_random <- df3[random_sample,] %>%
-      dplyr::select(.data$SNP, starts_with("Shat"))
+      dplyr::select(.data$SNP, tidyselect::starts_with("Shat"))
 
     for(i in seq_along(phe_col)[-1]){
 
@@ -292,16 +295,16 @@ gapit2mashr <- function(path = ".", phenotypes = NA, numSNPs = 1000,
 
       bhat_df <- bhat_df %>%
         dplyr::left_join(df3, by = "SNP") %>%
-        dplyr::select(.data$SNP, starts_with("Bhat"))
+        dplyr::select(.data$SNP, tidyselect::starts_with("Bhat"))
       shat_df <- shat_df %>%
         dplyr::left_join(df3, by = "SNP") %>%
-        dplyr::select(.data$SNP, starts_with("Shat"))
+        dplyr::select(.data$SNP, tidyselect::starts_with("Shat"))
       bhat_random <- bhat_random %>%
         dplyr::left_join(df3[random_sample,], by = "SNP") %>%
-        dplyr::select(.data$SNP, starts_with("Bhat"))
+        dplyr::select(.data$SNP, tidyselect::starts_with("Bhat"))
       shat_random <- shat_random %>%
         dplyr::left_join(df3[random_sample,], by = "SNP") %>%
-        dplyr::select(.data$SNP, starts_with("Shat"))
+        dplyr::select(.data$SNP, tidyselect::starts_with("Shat"))
     }
   }
 

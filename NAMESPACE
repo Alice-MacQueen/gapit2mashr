@@ -3,3 +3,4 @@
 export(gapit2mashr)
 export(gapit_phenotypes_in_folder)
 export(load_GAPIT_GWAS_all)
+importFrom(magrittr,"%>%")
