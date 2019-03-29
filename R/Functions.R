@@ -194,8 +194,9 @@ s_hat_gapit <- function(df, phenotype){
 #' \dontrun{gapit2mashr(numSNPs = 10000, S_hat = "Hedges' G")}
 #' \dontrun{gapit2mashr(numSNPs = 20000, S_hat = "Hedges' G", saveoutput = TRUE)}
 #' \dontrun{phenotype_vector <- gapit_phenotypes_in_folder(path = system.file(
-#'     "inst/extdata"))}
-#' \dontrun{gapit2mashr(phenotypes = phenotype_vector, numSNPs = 5000,
+#'     "inst/extdata"))
+#'     numSNPs <- 1000000 / length(phenotype_vector)^2
+#'     gapit2mashr(phenotypes = phenotype_vector, numSNPs = numSNPs,
 #' S_hat = "Hedges' G", saveoutput = TRUE)}
 #'
 #' @export
