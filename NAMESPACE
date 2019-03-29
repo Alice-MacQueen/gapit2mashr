@@ -2,11 +2,14 @@ export("gapit2mashr")
 export("gapit_phenotypes_in_folder")
 export("load_GAPIT_GWAS_all")
 
-importFrom("magrittr", "%>%")
 importFrom("dplyr", "select", "mutate", "top_n", "arrange", "full_join",
-       "left_join", )
+       "left_join")
+importFrom("magrittr", "%>%")
+importFrom("purrr", "partial", "map")
 importFrom("readr", "read_csv", "read_delim")
+importFrom("rlang", ".data")
+importFrom("stringr", "str_sub")
 importFrom("tidyr", "separate")
 importFrom("tidyselect", "starts_with")
-importFrom("purr", "partial", "map")
-importFrom("stringr", "str_sub")
+
+

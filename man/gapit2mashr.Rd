@@ -15,8 +15,8 @@ string. Defaults to the working directory.}
 will find these from the GAPIT Results files found in the path.}
 
 \item{numSNPs}{The number of most significant SNPs selected from each GWAS.
-Ideally this will give 1 million or fewer total cells in the resultant mash
-dataframes. Defaults to 1000. For many users this will be far too few.}
+Ideally this will give 1 million or fewer total cells in the resultant
+mash dataframes. Defaults to 1000. For most purposes this is far too few.}
 
 \item{model}{Model type used in GAPIT runs, a character string. Defaults to
 "CMLM".}
@@ -39,25 +39,27 @@ user's files, to four dataframes used in the R package mashr.
 }
 \note{
 Hedges' g (Hedges & Olkin 1985 p. 86) is used here to calculate S_hat,
-or the standard error in the effect size difference between the reference and
-alternate allele, because it allows the calculation of both the effect size
-of the alternate allele, and the confidence interval around the effect size.
-This function uses the effect sizes provided by GAPIT to compute the
-confidence interval calculation. The calculations are:
+    or the standard error in the effect size difference between the reference
+    and alternate allele, because it allows the calculation of both the
+    effect size of the alternate allele, and the confidence interval around
+    the effect size. This function uses the effect sizes provided by GAPIT to
+    compute the confidence interval calculation. The calculations are:
 \code{d = 2r/sqrt(1-r^2)}
 \code{d_unbiased = (1-(3/(4*(N-2)-1)))*d}
 \code{sigma^2_d_i = (n_i^e + n_i^c)/n_i^e*n_i^c + d_i^2 / 2*(n_i^e + n_i^c)}
-where r is the effect size, scaled between -1 and 1; n's are the sample sizes
-of the two experimental groups; N is the total sample size.
+    where r is the effect size, scaled between -1 and 1; n's are the sample
+    sizes of the two experimental groups; N is the total sample size.
 
 To create a vector of phenotype names, use the
-\code{\link{gapit_phenotypes_in_folder}} function.
+    \code{\link{gapit_phenotypes_in_folder}} function.
 }
 \examples{
-gapit2mashr(path = file.path("data-raw"), numSNPs = 60, S_hat = "Hedges' G")
+gapit2mashr(path = system.file("inst/extdata"), numSNPs = 20,
+    S_hat = "Hedges' G")
 \dontrun{gapit2mashr(numSNPs = 10000, S_hat = "Hedges' G")}
 \dontrun{gapit2mashr(numSNPs = 20000, S_hat = "Hedges' G", saveoutput = TRUE)}
-phenotype_vector <- gapit_phenotypes_in_folder(path = file.path("data-raw"))
+phenotype_vector <- gapit_phenotypes_in_folder(path = system.file(
+    "inst/extdata"))
 \dontrun{gapit2mashr(phenotypes = phenotype_vector, numSNPs = 5000,
 S_hat = "Hedges' G", saveoutput = TRUE)}
 
